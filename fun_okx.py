@@ -472,6 +472,7 @@ class OkxUtils():
         return None
 
     def get_balance_by_chain_coin(self, s_chain, s_coin):
+        s_bal_chain_usd = '-1'
         s_balance_coin = '-1'
         s_balance_usd = '-1'
 
@@ -505,6 +506,23 @@ class OkxUtils():
                     ele_btn.wait.enabled(timeout=3)
                     ele_btn.click(by_js=True)
                     tab.wait(3)
+
+                # get chain total usd
+                ele_blk = tab.ele('@@tag()=div@@class:_balanceWrapper', timeout=2) # noqa
+                if not isinstance(ele_blk, NoneElement):
+                    ele_info = ele_blk.ele('@@tag()=div@@class:_typography', timeout=2) # noqa
+                    if not isinstance(ele_info, NoneElement):
+                        s_text = ele_info.text.replace('\n', ' ')
+                        self.logit(None, f'Total: {s_text} ...') # noqa
+                        # $34.67
+                        # 提取 $ 后面的数字
+                        match = re.search(r'\$(\d+(?:\.\d+)?)', s_text)
+                        if match:
+                            s_bal_chain_usd = match.group(1)
+                            self.logit(None, f'Total usd: {s_bal_chain_usd} ...') # noqa
+                        else:
+                            self.logit(None, f'Failed to extract amount from: {s_text}') # noqa
+
                 # Hidden (1)
                 lst_path = [
                     '@@tag()=div@@class:root@@text():Hidden',
@@ -555,7 +573,7 @@ class OkxUtils():
 
             break
 
-        return (s_balance_coin, s_balance_usd)
+        return (s_bal_chain_usd, s_balance_coin, s_balance_usd)
 
 
 if __name__ == "__main__":

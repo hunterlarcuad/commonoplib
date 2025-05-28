@@ -22,9 +22,6 @@ from fun_utils import format_ts
 from fun_utils import time_difference
 from fun_utils import get_index_from_header
 
-from proxy_api import set_proxy
-
-
 from conf import DEF_LOCAL_PORT
 from conf import DEF_INCOGNITO
 from conf import DEF_USE_HEADLESS
@@ -136,10 +133,10 @@ class DpUtils():
         co.set_argument('--accept-lang', 'en-US')  # 设置语言为英语（美国）
         co.set_argument('--lang', 'en-US')
 
-        # 阻止“自动保存密码”的提示气泡
+        # 阻止"自动保存密码"的提示气泡
         co.set_pref('credentials_enable_service', False)
 
-        # 阻止“要恢复页面吗？Chrome未正确关闭”的提示气泡
+        # 阻止"要恢复页面吗？Chrome未正确关闭"的提示气泡
         co.set_argument('--hide-crash-restore-bubble')
 
         # 关闭沙盒模式
