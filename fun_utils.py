@@ -254,11 +254,12 @@ def load_file(file_in, idx_key=0, header=''):
     return d_ret
 
 
-def save2file(file_ot, dic_status, idx_key=0, header=''):
+def save2file(file_ot, dic_status, idx_key=0, header='', mode='w'):
     """
     header: 表头
     dic_status: 输出的字段列表
     idx_key: dic_status value 的主键下标
+    mode: 'w' 为覆盖模式，'a' 为追加模式
     """
     b_ret = True
     s_msg = ''
@@ -267,13 +268,9 @@ def save2file(file_ot, dic_status, idx_key=0, header=''):
     if dir_file_out and (not os.path.exists(dir_file_out)):
         os.makedirs(dir_file_out)
 
-    if not os.path.exists(file_ot):
-        with open(file_ot, 'w') as fp:
-            fp.write(f'{header}\n')
-
     try:
-        # 先读取原有内容，合并至 dic_status
-        if os.path.exists(file_ot):
+        # 如果是覆盖模式，需要合并原有内容
+        if mode == 'w' and os.path.exists(file_ot):
             with open(file_ot, 'r') as fp:
                 lines = fp.readlines()
                 for line in lines[1:]:  # 跳过表头
@@ -285,10 +282,22 @@ def save2file(file_ot, dic_status, idx_key=0, header=''):
                         continue
                     dic_status[s_key] = fields
 
-        lst_sorted = sorted(dic_status.keys())
-        with open(file_ot, 'w') as fp:
-            fp.write(f'{header}\n')
-            for s_key in lst_sorted:
+        # 如果文件不存在，需要写入表头
+        if not os.path.exists(file_ot):
+            with open(file_ot, 'w') as fp:
+                fp.write(f'{header}\n')
+
+        with open(file_ot, mode) as fp:
+            # 覆盖模式下需要写入表头并排序
+            if mode == 'w':
+                fp.write(f'{header}\n')
+                keys = sorted(dic_status.keys())
+            else:
+                # 追加模式下直接使用原顺序
+                keys = dic_status.keys()
+
+            # 写入内容
+            for s_key in keys:
                 s_out = ','.join(str(item) for item in dic_status[s_key])
                 fp.write(f'{s_out}\n')
     except Exception as e:
